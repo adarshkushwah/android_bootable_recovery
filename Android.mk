@@ -1,5 +1,4 @@
 # Copyright (C) 2007 The Android Open Source Project
-# Copyright (C) 2018 ATG Droid  
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +15,7 @@
 LOCAL_PATH := $(call my-dir)
 commands_TWRP_local_path := $(LOCAL_PATH)
 
-ifdef project-path-for
+ifneq ($(project-path-for),)
     ifeq ($(LOCAL_PATH),$(call project-path-for,recovery))
         PROJECT_PATH_AGREES := true
         BOARD_SEPOLICY_DIRS += $(call project-path-for,recovery)/sepolicy
@@ -53,24 +52,10 @@ TWHTCD_PATH := $(TWRES_PATH)htcd/
 
 TARGET_RECOVERY_GUI := true
 
-ifeq ($(PB_OFFICIAL),true)
-	ifeq ($(PB_GO),true)
-	    LOCAL_CFLAGS += -DTW_DEVICE_VERSION='"-PB-GO-v2.9.0-Official"'
-	else
-	    LOCAL_CFLAGS += -DTW_DEVICE_VERSION='"-PB-v2.9.0-Official"'
-	endif
+ifneq ($(TW_DEVICE_VERSION),)
+    LOCAL_CFLAGS += -DTW_DEVICE_VERSION='"-$(TW_DEVICE_VERSION)"'
 else
-	ifeq ($(PB_GO),true)
-	    LOCAL_CFLAGS += -DTW_DEVICE_VERSION='"-PB-GO-v2.9.0-Unofficial"'
-	else
-	    LOCAL_CFLAGS += -DTW_DEVICE_VERSION='"-PB-v2.9.0-Unofficial"'
-	endif
-endif
-
-DEVICE := $(subst omni_,,$(TARGET_PRODUCT))
-
-ifeq ($(PB_DEVICE_MODEL),)
-    LOCAL_CFLAGS += -DPB_DEVICE_MODEL='"$(DEVICE)"'
+    LOCAL_CFLAGS += -DTW_DEVICE_VERSION='"-0"'
 endif
 LOCAL_CFLAGS += -DPLATFORM_SDK_VERSION=$(PLATFORM_SDK_VERSION)
 
@@ -346,9 +331,6 @@ ifeq ($(TW_INCLUDE_CRYPTO), true)
             LOCAL_CFLAGS += -DTW_INCLUDE_FBE_METADATA_DECRYPT
         endif
     endif
-    ifeq ($(shell test $(PLATFORM_SDK_VERSION) -ge 24; echo $$?),0)
-        LOCAL_SHARED_LIBRARIES += android.hardware.weaver@1.0
-    endif
     ifneq ($(TW_CRYPTO_USE_SYSTEM_VOLD),)
     ifneq ($(TW_CRYPTO_USE_SYSTEM_VOLD),false)
         LOCAL_CFLAGS += -DTW_CRYPTO_USE_SYSTEM_VOLD
@@ -428,19 +410,11 @@ LOCAL_REQUIRED_MODULES += \
     fsck.fat \
     fatlabel \
     mkfs.fat \
-    mkbootimg \
-    unpackbootimg \
     permissive.sh \
     simg2img_twrp \
     libbootloader_message_twrp \
     init.recovery.hlthchrg.rc \
-    init.recovery.service.rc \
-    parted \
-    magiskboot
-
-ifneq ($(TW_INCLUDE_REPACKTOOLS), true)
-    TW_INCLUDE_REPACKTOOLS := true
-endif
+    init.recovery.service.rc
 
 ifneq ($(TARGET_ARCH), arm64)
     ifneq ($(TARGET_ARCH), x86_64)
