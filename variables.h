@@ -147,7 +147,7 @@
 
 // PitchBlack Variables
 #define PB_BUILD                TW_DEVICE_VERSION
-#define PB_DEVICE               PB_DEVICE_MODEL
+#define PB_DEVICE               //PB_DEVICE_MODEL //This needs to be replaced with the proper device model flag : "" ""
 #define PB_VERSION              TW_MAIN_VERSION_STR
 
 #define PB_SURVIVAL_BACKUP          "OTA"
